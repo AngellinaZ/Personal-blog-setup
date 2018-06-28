@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import {getTag} from '../api/index.js'
+
 export default {
   name: 'sidebar',
   data () {
@@ -42,12 +44,16 @@ export default {
           'url': '/backstage', 
           'items': [
             {
-              'name': '-文案',
+              'name': '-文案编辑',
               'url': '/markdown'
             },
             {
-              'name': '-管理',
-              'url': '/manage'
+              'name': '-标签维护',
+              'url': '/manageTag'
+            },
+            {
+              'name': '-文章维护',
+              'url': '/manageArticle'
             }
           ]
         }
@@ -57,7 +63,9 @@ export default {
     }
   },
   mounted() {
-    this.getTag();
+    getTag().then(res => {
+      this.tagArr = res.data;
+    });
     this.isLogin = localStorage.getItem('isLogin');
   },
   methods: {
@@ -69,23 +77,9 @@ export default {
       } else if (t === 'tag') {
         this.currTag = i;
       }
-    },
-
-    getTag () {
-        this.$http({
-            method: 'post',
-            url: this.HOST + '/api/getTag',
-            params: {}
-        }).then(response => {
-            var datas = response.data
-            if (datas.code == 200) {
-                this.tagArr = datas.data
-            }
-        }).catch(function(error) {
-        })
-    },
+    }
   } 
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

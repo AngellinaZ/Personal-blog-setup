@@ -15,6 +15,7 @@
 	</section>
 </template>
 <script type="text/javascript">
+	import {login} from '../../api/index.js'
 	export default {
 		name: 'backstage',
 		data() {	
@@ -38,31 +39,18 @@
 	                this.isFous1 = false
 	            }
 	        },
-	        login: function () {
-	            this.$http({
-	                method: 'post',
-	                url: this.HOST + '/api/login',
-	                params: {
-	                    username: this.userName,
-	                    password: this.password
-	                },
-	                headers: {
-	                  'Content-Type': 'application/x-www-form-urlencoded'
-	                }
-	            }).then(response => {
-	                var datas = response.data
-	                console.log(datas)
-	                if (datas.code == 200) {
-	                    // 登录成功写入 localStorage
-	                    localStorage.setItem('isLogin', true)
-	                    this.$router.push('/markdown');
-	                }
-	            }).catch(error => {
-	                
-	            })
+	        login () {
+	        	login(this.userName, this.password).then(res => {
+	        		if(res.code === 200) {
+	        			localStorage.setItem('isLogin', true)
+	                	this.$router.push('/markdown');
+	        		} else {
+	        			console.log('登录失败')
+	        		}
+	        	})
 	        }
 	    }
-	}
+	};
 </script>
 <style lang="scss" scoped>
 	.section-content {

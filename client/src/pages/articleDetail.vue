@@ -15,6 +15,8 @@
 <script>
 import {formatDay} from '../assets/common/com.js'
 import showdown  from 'showdown'
+import {getArticleDetail} from '../api/index.js'
+
 export default {
     name: 'article-detail',
     data () {
@@ -29,25 +31,16 @@ export default {
     },
     methods: {
         getDetail () {
-        	// var parser = new HyperDown;
         	var converter = new showdown.Converter();
-            this.$http({
-                method: 'post',
-                url: this.HOST + '/api/getArticleDetail',
-                params: {
-                    id: this.id
-                }
-            }).then(response => {
-                var datas = response.data
-                if (datas.code == 200) {
-                    this.title = datas.data.title
-                    this.content = converter.makeHtml(datas.data.content)
+            getArticleDetail(this.id).then(res => {
+                if (res.code == 200) {
+                    this.title = res.data.title
+                    this.content = converter.makeHtml(res.data.content)
                     // console.log(this.content)
-                    this.img = datas.data.img
-                    this.createTime = datas.data.createTime
-                    this.tag = datas.data.tag
+                    this.img = res.data.img
+                    this.createTime = res.data.createTime
+                    this.tag = res.data.tag
                 }
-            }).catch(error => {
             })
         }
     },
@@ -55,7 +48,7 @@ export default {
         formatDate: (value) => formatDay(Number(value), 'yyyy-MM-dd hh:mm')
     },
     mounted () {
-    	this.$nextTick( () => {
+    	this.$nextTick(() => {
 	      	if (this.id) {
             	this.getDetail()
        		}
@@ -64,12 +57,10 @@ export default {
     },
     updated() {
     	let content = document.getElementsByClassName('content')[0];
-    	console.log(content)
     	let uls = content.getElementsByTagName('ul');
     	let lis = content.getElementsByTagName('li');
     	let ps = content.getElementsByTagName('p');
     	let pres = content.getElementsByTagName('pre');
-    	// ul.style.display = 'flex'
     	for(let i = 0; i < lis.length; i++) {
     		lis[i].setAttribute('style', 'list-style-type: disc');
     	}
@@ -82,10 +73,8 @@ export default {
     	for(let i = 0; i < pres.length; i++) {
     		pres[i].setAttribute('style', 'width: 100%; background: #fff; text-align: left; padding: 0.5rem; line-height: 2rem;');
     	}
-    
-    	console.log(ul)
 	},
-}
+};
 </script>
 <style lang="scss" scoped>
 	.section-content {

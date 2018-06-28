@@ -1,15 +1,16 @@
 //首页
-const home = param => require.ensure([], () => param(require('../pages/home')), 'home');
+const home = r => require.ensure([], () => r(require('../pages/home')), 'home');
 
 //后台
-const backstage = param => require.ensure([], () => param(require('../pages/admin/backstage')), 'backstage');
-const markdown = param => require.ensure([], () => param(require('../pages/admin/markdown')), 'markdown');
-const manage = param => require.ensure([], () => param(require('../pages/admin/manage')), 'manage');
-const articleDetail = param => require.ensure([], () => param(require('../pages/articleDetail')), 'articleDetail');
+const backstage = r => require.ensure([], () => r(require('../pages/admin/backstage')), 'backstage');
+const markdown = r => require.ensure([], () => r(require('../pages/admin/markdown')), 'markdown');
+const manageTag = r => require.ensure([], () => r(require('../pages/admin/manageTag')), 'manageTag');
+const manageArticle = r => require.ensure([], () => r(require('../pages/admin/manageArticle')), 'manageArticle');
+const articleDetail = r => require.ensure([], () => r(require('../pages/articleDetail')), 'articleDetail');
 
 
 export default [
-	{
+  {
     path: '/',
     name: 'home',
     component: home
@@ -30,9 +31,14 @@ export default [
     component: markdown
   },
   {
-    path: '/manage',
-    name: 'manage',
-    component: manage
+    path: '/manageTag',
+    name: 'manageTag',
+    component: manageTag
+  },
+  {
+    path: '/manageArticle',
+    name: 'manageArticle',
+    component: manageArticle
   }
 ]
- 	
+  

@@ -33,11 +33,14 @@
 	</div>
 </template>
 <script>
+import {getTag, getArticleDetail, updateArticle, insertArticle} from '../../api/index.js'
+
 
 export default { 	
 	name: 'markdown',
 	data() {	
 		return {
+			id: this.$route.query.id,
 			articleTitle: '',
 			intro: '',
 			articleContent: '',
@@ -47,40 +50,69 @@ export default {
 	},
 	mounted() {
 		this.getTag();
+		if (this.id) {
+        	this.getDetail()
+   		}
 	},
 	methods: {
+		getDetail () {
+			getArticleDetail(this.id).then(res => {
+				if (res.code == 200) {
+                    this.articleTitle = res.data.title;
+                    this.articleContent = res.data.content;
+                    this.intro = res.data.intro;
+                    this.img = res.data.img;
+                    this.tags = res.data.tag.split(',');
+                }
+			})
+        },
+
 		submit () {
-            this.$http({
-                method: 'post',
-                url: this.HOST + '/api/insertArticle',
-                params: {
-                    title: this.articleTitle,
-                    intro: this.intro,
-                    content: this.articleContent,
-                    img: this.img,
-                    tag: this.tags.join(",")
-                },
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            }).then(response => {
-                var datas = response.data
-                if (datas.code == 200) {
-                    alert('发布成功')
-                  	this.articleTitle = '';
-                  	this.intro = '';
-                    this.articleContent = '';
-                	this.img = '';
-                	this.tags = [];
-                }
-            }).catch(function(error) {
-                //console.log(error)
-            })
+            if (this.id) {
+            	this.updateArticle();
+            } else {
+            	this.insertArticle()
+            }
+        },
+
+        //新增
+        insertArticle() {
+        	insertArticle(this.articleTitle, this.intro, this.articleContent, this.img, this.tags.join(','))
+        		.then(res => {
+        			if (res.code == 200) {
+	                	this.$message({
+		                  	message: "添加成功!",
+		                  	type: "success"
+		                });
+	                  	this.articleTitle = '';
+	                  	this.intro = '';
+	                    this.articleContent = '';
+	                	this.img = '';
+	                	this.tags = [];
+	                }
+        		})
+        },
+
+        //修改
+        updateArticle() {
+        	updateArticle(this.id, this.articleTitle, this.intro, this.articleContent, this.img, this.tags.join(','))
+        		.then(res => {
+        			if (res.code == 200) {
+	                	this.$message({
+		                  	message: "修改成功!",
+		                  	type: "success"
+		                });
+	                  	this.articleTitle = '';
+	                  	this.intro = '';
+	                    this.articleContent = '';
+	                	this.img = '';
+	                	this.tags = [];
+	                }
+        		}) 
         },
 
 		// 图片上传
         upload (event) {
-        	console.log(event)
             let files = event.target.files[0]
             var formData = new FormData()
             formData.append('files', files)
@@ -103,15 +135,11 @@ export default {
 
 		// 获取标签
         getTag() {
-            this.$http({
-                method: "post",
-                url: this.HOST + '/api/getTag',
-                params: {}
-            }).then(res => {
-                if (res.status === 200) {
-                    this.tagList = res.data.data
-                }
-            }).catch();
+        	getTag().then(res => {
+        		if(res.code === 200) {
+                    this.tagList = res.data;
+        		}
+        	})
         },
 
         // 绑定@imgAdd event
@@ -135,7 +163,7 @@ export default {
            })
         }
     }
-}
+};
 </script>
 <style lang="scss" scoped>
 	.section-content {

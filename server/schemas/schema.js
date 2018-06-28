@@ -17,7 +17,7 @@ var articleSchema = mongoose.Schema({
 var article = mongoose.model('article', articleSchema)
 // 插入文章
 router.post('/insertArticle', function(req, res, next) {
-    const { title, content, intro, img, tag, createTime = Date.parse(new Date()) } = req.query
+    const { title, content, intro, img, tag, createTime = Date.parse(new Date()) } = req.body
     console.log(tag)
     console.log(title)
     console.log(content)
@@ -54,13 +54,47 @@ router.post('/insertArticle', function(req, res, next) {
         }
     });
 });
+// 修改文章
+router.post('/updateArticle', function(req, res, next) {
+    const { _id, title, content, intro, img, tag, createTime = Date.parse(new Date()) } = req.body
+    let param = {
+        title: title,
+        content: content,
+        intro: intro,
+        img: img,
+        tag: tag,
+        createTime: createTime
+    }
+
+    mongoose.connect(DB_url, function(err) {
+        if (err) {
+            console.log('setTag连接失败')
+        } else {
+            console.log('setTag连接成功1')
+            article.findByIdAndUpdate(_id, param, (err, doc) => {
+                if (doc) {
+                    res.setHeader('Content-Type', 'application/json');
+                    res.status(200).send({
+                        code: 200,
+                        data: doc
+                    });
+                } else {
+                    res.send({
+                        code: '500',
+                        msg: "删除失败",
+                        data: doc
+                    });
+                }
+            }).exec()
+        }
+    });
+});
 // 获取文章列表
 router.post('/getArticleList', function(req, res, next) {
     mongoose.connect(DB_url, function(err) {
         if (err) {
 
         } else {
-            var article = mongoose.model('article', articleSchema);
             article.find(function(err, doc) {
                 res.setHeader('Content-Type', 'application/json');
                 res.status(200).send({
@@ -73,7 +107,7 @@ router.post('/getArticleList', function(req, res, next) {
 });
 // 获取文章详情
 router.post('/getArticleDetail', function(req, res, next) {
-    var id = req.query.id
+    var id = req.body.id
     if (id) {
         mongoose.connect(DB_url, function(err) {
             if (!err) {
@@ -93,10 +127,38 @@ router.post('/getArticleDetail', function(req, res, next) {
         });
     }
 });
+//删除文章
+router.post('/deleteArticle', function(req, res, next) {
+    console.log(req.body._id)
+    let { _id } = req.body
+    if (_id) {
+        mongoose.connect(DB_url, function(err) {
+            if (!err) {
+                console.log('removeTag连接成功')
+                article.remove({_id : _id}, (err, doc) => {
+                    if (doc) {
+                        res.setHeader('Content-Type', 'application/json');
+                        res.status(200).send({
+                            code: 200,
+                            data: doc
+                        });
+                    } else {
+                        res.send({
+                            code: '500',
+                            msg: "删除失败",
+                            data: doc
+                        });
+                    }
+                }).exec();
+            }
+        });
+    }
+});
 
 
 
-// tag数据插入获取
+
+/*标签*/
 var TagSchema = mongoose.Schema({
     name: String,
 });
@@ -125,14 +187,14 @@ router.post('/getTag', function(req, res, next) {
     });
 });
 router.post('/addTag', function(req, res, next) {
-    console.log(req.query)
+    console.log(req.body)
     mongoose.connect(DB_url, function(err) {
         if (err) {
             console.log('addTag连接失败')
         } else {
             console.log('addTag连接成功')
             new Tag({
-                name: req.query.tagName
+                name: req.body.tagName
             }).save((err, doc) => {
                 if (err) {
 
@@ -149,14 +211,12 @@ router.post('/addTag', function(req, res, next) {
 });
 // 删除标签
 router.post('/removeTag', function (req, res) {
-    console.log(req.query)
-    let { _id } = req.query
+    let { _id } = req.body
     mongoose.connect(DB_url, function (err) {
         if (err) {
             console.log('removeTag连接失败')
         } else {
             console.log('removeTag连接成功')
-            console.log(_id)
             Tag.remove({_id : _id}, (err, doc) => {
                 if (doc) {
                     res.setHeader('Content-Type', 'application/json');
@@ -185,7 +245,7 @@ var UserSchema = mongoose.Schema({
 });
 var User = mongoose.model('User', UserSchema);
 // router.post('/login', function(req, res, next) {
-//     console.log(req.query)
+//     console.log(req.body)
 //     mongoose.connect(DB_url, function(err) {
 //         if (err) {
 //             console.log('getTag连接失败');
@@ -197,8 +257,8 @@ var User = mongoose.model('User', UserSchema);
 //         } else {
 //             console.log('getTag连接成功');
 //             new User({
-//                 username: req.query.username, 
-//                 password: req.query.password
+//                 username: req.body.username, 
+//                 password: req.body.password
 //             }).save((err, doc) => {
 //                 if (err) {
 //                     res.send({
@@ -229,10 +289,9 @@ router.post('/login', function(req, res, next) {
             });
         } else {
             console.log('getTag连接成功');
-
             User.findOne({
-                username: req.query.username, //'fish',
-                password: req.query.password, //'123'
+                username: req.body.username, //'fish',
+                password: req.body.password, //'123'
             }, function(err, doc) {
                 if (doc) {
                     res.setHeader('Content-Type', 'application/json');

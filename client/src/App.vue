@@ -6,11 +6,11 @@
 </template>
 
 <script>
-import Sidebar from "@/components/sidebar"
+import Sidebar from "@/components/sidebar";
 export default {
   name: 'App',
   components: { Sidebar }
-}
+};
 </script>
 
 <style>

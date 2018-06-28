@@ -20,6 +20,8 @@
 
 <script>
 import {formatDay} from '../assets/common/com.js'
+import {getArticleList} from '../api/index.js'
+
 export default {
 	name: 'home',
 	data () {
@@ -28,7 +30,9 @@ export default {
 		}
 	},
 	mounted() {
-		this.getArticleList();
+		getArticleList().then(res => {
+			this.articles = res.data;
+		}) 
 	},
 	filters: {
         formDate(value){
@@ -36,24 +40,11 @@ export default {
         }
     },
 	methods: {
-        getArticleList () {
-            this.$http({
-                method: 'post',
-                url: this.HOST + '/api/getArticleList',
-                params: {}
-            }).then(response => {
-                var datas = response.data
-                if (datas.code == 200) {
-                    this.articles = datas.data
-                }
-            }).catch(error =>{
-            })
-        },
-        articleDetail: function (item) {
+        articleDetail (item) {
             this.$router.push('/articleDetail?id='+ item._id);
         }
 	}
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
